@@ -6,13 +6,12 @@ const ProfileSchema = new mongoose.Schema({
         ref: 'user'
     },
     restaurantName: {
-        type: String
+        type: String,
+        required: true
     },
-    website: {
-        type: String
-    },
-    location: {
-        type: String
+    restaurantDesc: {
+        type: String,
+        required: true
     },
     menu: [
         {
@@ -20,7 +19,7 @@ const ProfileSchema = new mongoose.Schema({
                 type: String,
                 required: true
             },
-            description: {
+            categoryDesc: {
                 type: String,
                 required: true
             },
@@ -38,7 +37,7 @@ const ProfileSchema = new mongoose.Schema({
                         type: Number,
                         required: true
                     },
-                    changesList: [
+                    changeList: [
                         {
                             changeName: {
                                 type: String,
