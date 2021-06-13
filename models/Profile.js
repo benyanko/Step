@@ -37,6 +37,10 @@ const ProfileSchema = new mongoose.Schema({
                         type: Number,
                         required: true
                     },
+                    hide: {
+                        type: Boolean,
+                        default: false
+                    },
                     changeList: [
                         {
                             changeName: {
