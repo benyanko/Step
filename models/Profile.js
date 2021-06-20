@@ -48,7 +48,8 @@ const ProfileSchema = new mongoose.Schema({
                                 required: true
                             },
                             changePrice: {
-                                type: Number
+                                type: Number,
+                                default: 0
                             }
                         }
                     ]
