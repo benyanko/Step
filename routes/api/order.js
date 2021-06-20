@@ -26,7 +26,7 @@ router.get('/me', auth,
     }))
 
 // @route    POST api/order/:user_id
-// @desc     Create or update order
+// @desc     Create order
 // @access   Private
 router.post(
     '/:user_id',
@@ -66,13 +66,18 @@ router.post(
             tip: tip
         };
 
+
         try {
+            /*
             // Using upsert option (creates new doc if no match is found):
             let order = await Order.findOneAndUpdate(
                 { user: req.params.user_id},
                 { $set: orderFields },
                 { new: true, upsert: true, setDefaultsOnInsert: true }
             );
+
+         */
+        let order = Order.insertMany(orderFields)
             return res.json(order);
         } catch (err) {
             console.error(err.message);
