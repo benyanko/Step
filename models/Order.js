@@ -17,29 +17,7 @@ const OrderSchema = new mongoose.Schema({
         type: Boolean,
         default: false,
     },
-    items: [
-        {
-            dishName: {
-                type: String,
-                required: true
-            },
-            dishPrice : {
-                type: Number,
-                required: true
-            },
-            changeList: [
-                {
-                    changeName: {
-                        type: String,
-                        required: true
-                    },
-                    changePrice: {
-                        type: Number
-                    }
-                }
-            ]
-        }
-    ],
+    items: [],
     tip: {
         type: Number,
         required: true
