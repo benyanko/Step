@@ -57,6 +57,12 @@ const ProfileSchema = new mongoose.Schema({
             ]
         }
     ],
+    tableList: [
+        {
+            type: String,
+            required: true
+        }
+],
 });
 
 module.exports = mongoose.model('profile', ProfileSchema);
