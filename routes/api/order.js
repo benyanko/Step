@@ -68,16 +68,7 @@ router.post(
 
 
         try {
-            /*
-            // Using upsert option (creates new doc if no match is found):
-            let order = await Order.findOneAndUpdate(
-                { user: req.params.user_id},
-                { $set: orderFields },
-                { new: true, upsert: true, setDefaultsOnInsert: true }
-            );
-
-         */
-        let order = Order.insertMany(orderFields)
+            let order = Order.insertMany(orderFields)
             return res.json(order);
         } catch (err) {
             console.error(err.message);
