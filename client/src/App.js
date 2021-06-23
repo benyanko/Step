@@ -1,33 +1,31 @@
 import React, {Fragment, ButtonHTMLAttributes} from "react";
 import './App.css';
-import {
-    Button,
-    Card,
-    CardHeader,
-    CardBody,
-    FormGroup,
-    Form,
-    Input,
-    InputGroupAddon,
-    InputGroupText,
-    InputGroup,
-    Container,
-    Row,
-    Col
-} from "reactstrap";
-
+import Navbar from "./components/layout/Navbar";
+import Landing from "./components/layout/Landing";
+import Alert from "./components/layout/alert";
+import Login from "./components/auth/Login";
+import Register from "./components/auth/Register";
+import {BrowserRouter as Router, Route, Switch} from "react-router-dom";
+// Redux
+import {Provider} from "react-redux";
+import store from "./store";
 
 const App = () => (
-    <Fragment>
-      <h1>App</h1>
-        <Button
-            className="my-4"
-            color="primary"
-            type="button"
-        >
-            Sign in
-        </Button>
-    </Fragment>
+    <Provider store={store}>
+        <Router>
+            <Fragment>
+                <Navbar />
+                <Route exact path="/" component={Landing} />
+                <section className="container">
+                    <Alert />
+                        <Switch>
+                            <Route exact path="/register" component={Register} />
+                            <Route exact path="/login" component={Login} />
+                        </Switch>
+                </section>
+            </Fragment>
+        </Router>
+    </Provider>
 )
 
 
