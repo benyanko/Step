@@ -3,15 +3,17 @@ const router = express.Router()
 const auth = require('../../middleware/auth')
 const {check, validationResult} = require('express-validator')
 
+const Profile = require('../../models/Profile')
 const Order = require('../../models/Order')
 
 // @router  GET api/order/me
 // @desc    Get current user orders
 // @access  Private
-router.get('/me', auth,
+router.get('/me', auth('admin', 'worker'),
     (async (req, res) => {
         try {
-            const orders = await Order.find({user: req.user.id})
+            let rest = await Profile.findOne({user: req.user.id})
+            let orders = await Order.find({restaurant: rest.id})
 
             if (!orders){
                 return res.status(400).json({msg: 'There is no orders for this user'})
@@ -25,11 +27,11 @@ router.get('/me', auth,
         }
     }))
 
-// @route    POST api/order/:user_id
+// @route    POST api/order/:rest_id
 // @desc     Create order
 // @access   Private
 router.post(
-    '/:user_id',
+    '/:rest_id',
     check('tableNumber', 'Table number is required').notEmpty(),
     check('items', 'Items are required').notEmpty(),
     check('tip', 'Tip is required').notEmpty(),
@@ -59,7 +61,7 @@ router.post(
         });
 
         const orderFields = {
-            user: req.params.user_id,
+            restaurant: req.params.rest_id,
             tableNumber: tableNumber,
             items: items,
             totalPrice: price,
@@ -82,7 +84,7 @@ router.post(
 // @access   Private
 router.put(
     '/:order_id',
-    auth,
+    auth('admin', 'worker'),
     check('tableNumber', 'Table number is required').notEmpty(),
     check('items', 'Items are required').notEmpty(),
     check('tip', 'Tip is required').notEmpty(),
@@ -109,8 +111,10 @@ router.put(
             })
         });
 
+        let restaurant = await Profile.findOne({user: req.user.id})
+
         const orderFields = {
-            user: req.user.id,
+            restaurant: restaurant.id,
             tableNumber: tableNumber,
             items: items,
             totalPrice: price,
@@ -122,7 +126,7 @@ router.put(
 
             // Using upsert option (creates new doc if no match is found):
             let order = await Order.updateMany(
-                {_id: req.params.order_id, user: req.user.id},
+                {_id: req.params.order_id, restaurant: restaurant.id},
                 { $set: orderFields },
                 { new: true, upsert: true, setDefaultsOnInsert: true }
             );

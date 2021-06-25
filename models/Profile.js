@@ -1,10 +1,10 @@
 const mongoose = require('mongoose');
 
 const ProfileSchema = new mongoose.Schema({
-    user: {
+    user: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'user'
-    },
+    }],
     restaurantName: {
         type: String,
         required: true

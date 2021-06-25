@@ -1,9 +1,9 @@
 const mongoose = require('mongoose');
 
 const OrderSchema = new mongoose.Schema({
-    user: {
+    restaurant: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'user'
+        ref: 'restaurant'
     },
     tableNumber: {
         type: Number,

@@ -2,6 +2,7 @@ const express = require('express')
 const router = express.Router()
 const auth = require('../../middleware/auth')
 const {check, validationResult} = require('express-validator')
+const axios = require('axios')
 
 const Profile = require('../../models/Profile')
 const User = require('../../models/User')
@@ -9,7 +10,7 @@ const User = require('../../models/User')
 // @router  GET api/profile/me
 // @desc    Get current user profile
 // @access  Private
-router.get('/me', auth,
+router.get('/me', auth('admin', 'worker'),
     (async (req, res) => {
         try {
             const profile = await Profile.findOne({user: req.user.id})
@@ -32,7 +33,7 @@ router.get('/me', auth,
 // @access   Private
 router.post(
     '/',
-    auth,
+    auth('admin'),
     check('restaurantName', 'Restaurant name is required').notEmpty(),
     check('restaurantDesc', 'Restaurant description is required').notEmpty(),
     async (req, res) => {
@@ -71,6 +72,47 @@ router.post(
         }
     }
 );
+
+// @route    POST api/profile/register
+// @desc     Register or worker user to profile
+// @access   Private
+router.post(
+    '/register',
+    auth('admin'),
+    [
+        check('name', 'Name is required').not().isEmpty(),
+        check('email', 'Please insert valid emil').isEmail(),
+        check('password', 'Please insert a password with 6 or more character')
+            .isLength({ min: 6 })
+    ], async (req, res) => {
+        //TODO
+        const errors = validationResult(req);
+        if (!errors.isEmpty()){
+            return res.status(400).json({ errors: errors.array() })
+        }
+
+        try {
+            const {name, email, password} = req.body;
+            const config = {
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            }
+            const body = JSON.stringify({ name, email, password, role: 'worker'})
+
+            await axios.post('http://127.0.0.1:5000/api/users', body, config)
+            let worker = await User.findOne({ email: email });
+            let profile = await Profile.findOne({ user: req.user.id });
+            await profile.user.push(worker.id);
+            console.log(worker.id)
+            await profile.save();
+            res.status(200).json(profile)
+
+        }catch (err){
+            console.log(err.message)
+            res.status(400).send(err.message)
+        }
+    })
 
 // @route    GET api/profile
 // @desc     Get all profiles
@@ -111,9 +153,8 @@ router.get('/user/:user_id', (async (req, res) => {
 // @route    DELETE api/profile
 // @desc     Delete profile & user
 // @access   Private
-router.delete('/', auth, async (req, res) => {
+router.delete('/', auth('admin'), async (req, res) => {
     try {
-        // Remove user posts
         // Remove profile
         // Remove user
         await Promise.all([
@@ -134,7 +175,7 @@ router.delete('/', auth, async (req, res) => {
 // @access   Private
 router.post(
     '/menu/category',
-    auth,
+    auth('admin'),
     check('categoryName', 'Category name is required').notEmpty(),
     check('categoryDesc', 'Category description is required').notEmpty(),
     async (req, res) => {
@@ -163,7 +204,7 @@ router.post(
 // @access   Private
 router.post(
     '/menu/:category_id/dish',
-    auth,
+    auth('admin'),
     check('dishName', 'Dish name is required').notEmpty(),
     check('dishDesc', 'Dish description is required').notEmpty(),
     check('dishPrice', 'Dish price is required and must be a number').notEmpty().isNumeric(),
@@ -193,7 +234,7 @@ router.post(
 // @access   Private
 router.post(
     '/menu/:category_id/:dish_id/change',
-    auth,
+    auth('admin'),
     check('changeName', 'Change name is required').notEmpty(),
     async (req, res) => {
         const errors = validationResult(req);
@@ -223,7 +264,7 @@ router.post(
 // @access   Private
 router.put(
     '/menu/:category_id',
-    auth,
+    auth('admin'),
     check('categoryName', 'Category name is required').notEmpty(),
     check('categoryDesc', 'Category description is required').notEmpty(),
     async (req, res) => {
@@ -254,7 +295,7 @@ router.put(
 // @access   Private
 router.put(
     '/menu/:category_id/:dish_id',
-    auth,
+    auth('admin'),
     check('dishName', 'Dish name is required').notEmpty(),
     check('dishDesc', 'Dish description is required').notEmpty(),
     check('dishPrice', 'Dish price is required and must be a number').notEmpty().isNumeric(),
@@ -288,7 +329,7 @@ router.put(
 // @access   Private
 router.put(
     '/menu/:category_id/:dish_id/:change_id',
-    auth,
+    auth('admin'),
     check('changeName', 'Change name is required').notEmpty(),
     async (req, res) => {
         const errors = validationResult(req);
@@ -323,7 +364,7 @@ router.put(
 // @access   Private
 router.delete(
     '/menu/:category_id',
-    auth,
+    auth('admin'),
     async (req, res) => {
         try {
             const profile = await Profile.findOne({ user: req.user.id });
@@ -345,7 +386,7 @@ router.delete(
 // @access   Private
 router.delete(
     '/menu/:category_id/:dish_id',
-    auth,
+    auth('admin'),
     async (req, res) => {
         try {
             const profile = await Profile.findOne({ user: req.user.id })
@@ -369,7 +410,7 @@ router.delete(
 // @access   Private
 router.delete(
     '/menu/:category_id/:dish_id/:change_id',
-    auth,
+    auth('admin'),
     async (req, res) => {
         try {
             const profile = await Profile.findOne({ user: req.user.id })
