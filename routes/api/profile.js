@@ -101,16 +101,13 @@ router.post(
             const body = JSON.stringify({ name, email, password, role: 'worker'})
 
             await axios.post('http://127.0.0.1:5000/api/users', body, config)
-            let worker = await User.findOne({ email: email });
-            let profile = await Profile.findOne({ user: req.user.id });
-            await profile.user.push(worker.id);
-            console.log(worker.id)
+            const worker = await User.findOne({ email: email }, '_id');
+            const profile = await Profile.findOne({ user:  req.user.id } );
+            profile.user.push(worker.id);
             await profile.save();
             res.status(200).json(profile)
-
         }catch (err){
-            console.log(err.message)
-            res.status(400).send(err.message)
+            res.status(err.response.status).send(err.response.data)
         }
     })
 
