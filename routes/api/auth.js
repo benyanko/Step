@@ -54,6 +54,12 @@ router.post('/',
                 return res.status(400).json({ errors: [{msg: 'Invalid credentials'}] })
             };
 
+            if (user.status != "Active") {
+                return res.status(401).send({
+                    errors: [{msg: "Pending Account. Please Verify Your Email!"}],
+                });
+            }
+
             const payload = {
                 user: {
                     id: user.id,
@@ -75,6 +81,45 @@ router.post('/',
         }
 
     })
+
+// @router  GET api/auth
+// @desc    Confirm user and get token
+// @access  Public
+router.get('/confirm/:confirmationCode',
+    async (req, res) => {
+        try {
+            let user = await User.findOne({ confirmationCode: req.params.confirmationCode });
+
+            // See if user not exists
+            if (!user){
+                return res.status(404).json({ errors: [{msg: 'User Not found'}] })
+            };
+
+            user.status = "Active";
+            await user.save()
+
+            const payload = {
+                user: {
+                    id: user.id,
+                    role: user.role
+                }
+            }
+            jwt.sign(
+                payload,
+                config.get('jwtSecret'),
+                {expiresIn: 3600},
+                (err, token) => {
+                    if (err) throw err
+                    res.json({token} )
+                });
+        }
+        catch (err){
+            console.log(err.message)
+            res.status(500).send('Server error')
+        }
+
+    })
+
 
 
 module.exports = router

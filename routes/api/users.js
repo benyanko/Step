@@ -1,3 +1,4 @@
+const auth = require('../../middleware/auth')
 const express = require('express')
 const router = express.Router()
 const { check, validationResult } = require('express-validator')
@@ -6,6 +7,7 @@ const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 const config = require('config')
 const User = require('../../models/User')
+const nodemailer = require('../../config/nodemailer')
 
 
 // @router  POST api/users
@@ -52,23 +54,16 @@ router.post('/',
         // Encrypt password
         const salt = await bcrypt.genSalt(10);
         user.password = await bcrypt.hash(password, salt);
+        user.confirmationCode = jwt.sign({confirmationCode: "secret"}, config.get('jwtSecret'))
 
         await user.save()
+        nodemailer.sendConfirmationEmail(
+            name,
+            email,
+            user.confirmationCode)
 
-        const payload = {
-            user: {
-                id: user.id,
-                role: role,
-            }
-        }
-        jwt.sign(
-            payload,
-            config.get('jwtSecret'),
-            {expiresIn: 3600},
-            (err, token) => {
-                if (err) throw err
-                res.json({token} )
-            });
+        return res.status(200).send('Please confirm your account')
+
     }
     catch (err){
         console.log(err.message)
@@ -76,5 +71,61 @@ router.post('/',
     }
 
 })
+
+// @router  POST api/users
+// @desc    Update user password
+// @access  Public
+router.post('/password', auth('admin', 'worker', 'user'),
+    [
+        check('password', 'Please insert a password with 6 or more character')
+            .isLength({ min: 6 }),
+        check('newPassword', 'Please insert a password with 6 or more character')
+            .isLength({ min: 6 })
+
+        ],
+    async (req, res) => {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()){
+            return res.status(400).json({ errors: errors.array() })
+        }
+
+        let {  password, newPassword, user } = req.body;
+
+        try {
+            let currentUser = await User.findOne({ _id: req.user.id });
+            const isMatch = await bcrypt.compare(password, currentUser.password)
+            if (!isMatch){
+                return res.status(400).json({ errors: [{msg: 'Invalid credentials'}] })
+            };
+
+
+
+            // Encrypt password
+            const salt = await bcrypt.genSalt(10);
+            currentUser.password = await bcrypt.hash(newPassword, salt);
+
+            await currentUser.save()
+
+            const payload = {
+                user: {
+                    id: currentUser.id,
+                    role: currentUser.role,
+                }
+            }
+            jwt.sign(
+                payload,
+                config.get('jwtSecret'),
+                {expiresIn: 3600},
+                (err, token) => {
+                    if (err) throw err
+                    res.json({token} )
+                });
+        }
+        catch (err){
+            console.log(err.message)
+            res.status(500).send('Server error')
+        }
+
+    })
 
 module.exports = router
