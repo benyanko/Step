@@ -13,6 +13,10 @@ const ProfileSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    sellerPaymentID: {
+        type: String,
+        default: "paymentID"
+    },
     menu: [
         {
             categoryName: {
