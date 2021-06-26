@@ -31,7 +31,7 @@ router.get('/me', auth('admin', 'worker'),
 // @desc     Create order
 // @access   Private
 router.post(
-    '/:rest_id',
+    '/:rest_id/:table_number',
     check('tableNumber', 'Table number is required').notEmpty(),
     check('items', 'Items are required').notEmpty(),
     check('tip', 'Tip is required').notEmpty(),
@@ -43,7 +43,6 @@ router.post(
 
         // destructure the request
         const {
-            tableNumber,
             items,
             tip,
             // spread the rest of the fields we don't need to check
@@ -62,7 +61,7 @@ router.post(
 
         const orderFields = {
             restaurant: req.params.rest_id,
-            tableNumber: tableNumber,
+            tableNumber: req.params.table_number,
             items: items,
             totalPrice: price,
             tip: tip
@@ -83,7 +82,7 @@ router.post(
 // @desc     edit order
 // @access   Private
 router.put(
-    '/:order_id',
+    '/:order_id/:table_number',
     auth('admin', 'worker'),
     check('tableNumber', 'Table number is required').notEmpty(),
     check('items', 'Items are required').notEmpty(),
@@ -96,7 +95,6 @@ router.put(
 
         // destructure the request
         const {
-            tableNumber,
             items,
             tip,
             // spread the rest of the fields we don't need to check
@@ -115,7 +113,7 @@ router.put(
 
         const orderFields = {
             restaurant: restaurant.id,
-            tableNumber: tableNumber,
+            tableNumber: req.params.table_number,
             items: items,
             totalPrice: price,
             tip: tip
