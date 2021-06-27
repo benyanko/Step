@@ -23,6 +23,10 @@ const UserSchema = new mongoose.Schema({
         type: String,
         unique: true
     },
+    resetPasswordExpires: {
+        type: Date,
+        required: false
+    },
     avatar: {
         type: String
     },

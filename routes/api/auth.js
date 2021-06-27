@@ -96,6 +96,8 @@ router.get('/confirm/:confirmationCode',
             };
 
             user.status = "Active";
+            user.confirmationCode = undefined
+
             await user.save()
 
             const payload = {
@@ -119,6 +121,34 @@ router.get('/confirm/:confirmationCode',
         }
 
     })
+
+// @router  GET api/auth
+// @desc    reset user password and get token
+// @access  Public
+router.get('/reset/:confirmationCode',
+    async (req, res) => {
+        try {
+            let user = await User.findOne({
+                confirmationCode: req.params.confirmationCode,
+                resetPasswordExpires: {$gt: Date.now()}
+            });
+
+            // if user not exists
+            if (!user){
+                return res.status(404).json({
+                    errors: [{msg: 'Password reset token is invalid or has expired'}] })
+            };
+
+            res.status(200).send(user)
+
+        }
+        catch (err){
+            console.log(err.message)
+            res.status(500).send('Server error')
+        }
+
+    })
+
 
 
 
