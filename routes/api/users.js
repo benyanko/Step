@@ -197,13 +197,11 @@ router.post('/reset/:confirmationCode',
             const salt = await bcrypt.genSalt(10);
             currentUser.password = await bcrypt.hash(newPassword, salt);
 
-            currentUser.resetPasswordExpires = undefined
-            currentUser.confirmationCode = undefined
+            currentUser.resetPasswordExpires = Date.now()
 
             await currentUser.save()
 
             res.status(200).send('password change')
-
 
         }
         catch (err){

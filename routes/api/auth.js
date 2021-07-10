@@ -96,7 +96,6 @@ router.get('/confirm/:confirmationCode',
             };
 
             user.status = "Active";
-            user.confirmationCode = undefined
 
             await user.save()
 

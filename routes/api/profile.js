@@ -10,7 +10,7 @@ const User = require('../../models/User')
 // @router  GET api/profile/me
 // @desc    Get current user profile
 // @access  Private
-router.get('/me', auth('admin', 'worker'),
+router.get('/me', auth('admin'),
     (async (req, res) => {
         try {
             const profile = await Profile.findOne({user: req.user.id})
@@ -125,12 +125,12 @@ router.get('/', (async (req, res) => {
     }
 }))
 
-// @route    GET api/profile/user/:user_id
-// @desc     Get profile by user id
+// @route    GET api/profile/user/:profile_id
+// @desc     Get profile by profile id
 // @access   Public
-router.get('/user/:user_id', (async (req, res) => {
+router.get('/user/:profile_id', (async (req, res) => {
     try {
-        const profile = await Profile.findOne({user: req.params.user_id})
+        const profile = await Profile.findOne({_id: req.params.profile_id})
             .populate('user', ['name', 'avatar'])
 
         if (!profile){
@@ -146,6 +146,28 @@ router.get('/user/:user_id', (async (req, res) => {
         return res.status(500).send('Server Error');
     }
 }))
+
+// @route    GET api/profile/menu/:profile_id
+// @desc     Get profile by profile id
+// @access   Public
+router.get('/menu/:profile_id', (async (req, res) => {
+    try {
+        const profile = await Profile.findOne({_id: req.params.profile_id})
+
+        if (!profile){
+            return res.status(400).json({msg: "Profile not found"});
+        }
+        res.status(200).json(profile.menu)
+    }
+    catch (err){
+        console.error(err.message);
+        if (err.kind == 'ObjectId'){
+            return res.status(400).json({msg: "Profile not found"});
+        }
+        return res.status(500).send('Server Error');
+    }
+}))
+
 
 // @route    DELETE api/profile
 // @desc     Delete profile & user
