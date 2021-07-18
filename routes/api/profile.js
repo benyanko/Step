@@ -189,6 +189,67 @@ router.delete('/', auth('admin'), async (req, res) => {
     }
 });
 
+// @route    POST api/profile/tables
+// @desc     Add table to table list
+// @access   Private
+router.post(
+    '/tables',
+    auth('admin'),
+    check('table', 'table name is required').notEmpty(),
+    async (req, res) => {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({ errors: errors.array() });
+        }
+        try {
+            const profile = await Profile.findOne({ user: req.user.id });
+
+            const table = req.body.table
+            profile.tableList.push(table);
+
+            await profile.save();
+
+            res.json(profile);
+
+        } catch (err) {
+            console.error(err.message);
+            res.status(500).send('Server Error');
+        }
+    })
+
+// @route    DELETE api/profile/tables
+// @desc     Delete table to table list
+// @access   Private
+router.delete(
+    '/tables',
+    auth('admin'),
+    check('table', 'table name is required').notEmpty(),
+    async (req, res) => {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({ errors: errors.array() });
+        }
+        try {
+            const profile = await Profile.findOne({ user: req.user.id });
+            const table = req.body.table
+            const tableIndex = profile.tableList.map(item => item).indexOf(table);
+            if (tableIndex >= 0){
+                profile.tableList.splice(tableIndex, 1)
+                await profile.save();
+                res.json(profile);
+            }
+            else {
+                return res.status(400).json({ errors: "table not found" });
+            }
+
+        } catch (err) {
+            console.error(err.message);
+            res.status(500).send('Server Error');
+        }
+    })
+
+
+
 // @route    POST api/profile/menu/category
 // @desc     Add category to menu
 // @access   Private
@@ -197,6 +258,8 @@ router.post(
     auth('admin'),
     check('categoryName', 'Category name is required').notEmpty(),
     check('categoryDesc', 'Category description is required').notEmpty(),
+    check('categoryNameEnglish', 'Category name is required').notEmpty(),
+    check('categoryDescEnglish', 'Category description is required').notEmpty(),
     async (req, res) => {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
@@ -226,6 +289,8 @@ router.post(
     auth('admin'),
     check('dishName', 'Dish name is required').notEmpty(),
     check('dishDesc', 'Dish description is required').notEmpty(),
+    check('dishNameEnglish', 'Dish name is required').notEmpty(),
+    check('dishDescEnglish', 'Dish description is required').notEmpty(),
     check('dishPrice', 'Dish price is required and must be a number').notEmpty().isNumeric(),
     async (req, res) => {
         const errors = validationResult(req);
@@ -255,6 +320,7 @@ router.post(
     '/menu/:category_id/:dish_id/change',
     auth('admin'),
     check('changeName', 'Change name is required').notEmpty(),
+    check('changeNameEnglish', 'Change name is required').notEmpty(),
     async (req, res) => {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
@@ -286,6 +352,8 @@ router.put(
     auth('admin'),
     check('categoryName', 'Category name is required').notEmpty(),
     check('categoryDesc', 'Category description is required').notEmpty(),
+    check('categoryNameEnglish', 'Category name is required').notEmpty(),
+    check('categoryDescEnglish', 'Category description is required').notEmpty(),
     async (req, res) => {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
@@ -317,6 +385,8 @@ router.put(
     auth('admin'),
     check('dishName', 'Dish name is required').notEmpty(),
     check('dishDesc', 'Dish description is required').notEmpty(),
+    check('dishNameEnglish', 'Dish name is required').notEmpty(),
+    check('dishDescEnglish', 'Dish description is required').notEmpty(),
     check('dishPrice', 'Dish price is required and must be a number').notEmpty().isNumeric(),
     async (req, res) => {
         const errors = validationResult(req);
@@ -350,6 +420,7 @@ router.put(
     '/menu/:category_id/:dish_id/:change_id',
     auth('admin'),
     check('changeName', 'Change name is required').notEmpty(),
+    check('changeNameEnglish', 'Change name is required').notEmpty(),
     async (req, res) => {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {

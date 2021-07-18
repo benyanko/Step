@@ -171,7 +171,7 @@ router.post('/recover',
         }
     })
 
-// @router  POST api/users
+// @router  POST api/users/reset/:confirmationCode
 // @desc    Update user password
 // @access  Public
 router.post('/reset/:confirmationCode',

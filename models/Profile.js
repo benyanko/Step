@@ -27,6 +27,15 @@ const ProfileSchema = new mongoose.Schema({
                 type: String,
                 required: true
             },
+            categoryNameEnglish: {
+                type: String,
+                required: true
+            },
+            categoryDescEnglish: {
+                type: String,
+                required: true
+            },
+
             dish: [
                 {
                     dishName: {
@@ -37,6 +46,15 @@ const ProfileSchema = new mongoose.Schema({
                         type: String,
                         required: true
                     },
+                    dishNameEnglish: {
+                        type: String,
+                        required: true
+                    },
+                    dishDescEnglish: {
+                        type: String,
+                        required: true
+                    },
+
                     dishPrice : {
                         type: Number,
                         required: true
@@ -51,6 +69,11 @@ const ProfileSchema = new mongoose.Schema({
                                 type: String,
                                 required: true
                             },
+                            changeNameEnglish: {
+                                type: String,
+                                required: true
+                            },
+
                             changePrice: {
                                 type: Number,
                                 default: 0
