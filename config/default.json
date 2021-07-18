@@ -1,6 +1,0 @@
-{
-  "mongoURI": "mongodb+srv://ben:3164913231995b@food.3fj0c.mongodb.net/myFirstDatabase?retryWrites=true&w=majority",
-  "jwtSecret": "xzKDJ8329hc93Nkd",
-  "user": "benjaminscote@gmail.com",
-  "pass": "ben1ben2"
-}
